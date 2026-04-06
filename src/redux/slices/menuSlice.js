@@ -1,6 +1,33 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { apiRequest, getErrorMessage } from "../apiClient";
 
+export const fetchWeeklyMenu = createAsyncThunk(
+  "menu/fetchWeeklyMenu",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiRequest("/menu/weekly");
+      return response?.data || {};
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
+export const updateWeeklyMenu = createAsyncThunk(
+  "menu/updateWeeklyMenu",
+  async (weeklyMenuPayload, { rejectWithValue }) => {
+    try {
+      const response = await apiRequest("/menu/weekly", {
+        method: "PUT",
+        body: weeklyMenuPayload,
+      });
+      return response?.data || weeklyMenuPayload?.weeklyMenu || {};
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
 export const fetchFixedMenu = createAsyncThunk(
   "menu/fetchFixedMenu",
   async (_, { rejectWithValue }) => {
@@ -44,6 +71,7 @@ const initialState = {
   loading: false,
   updating: false,
   data: {
+    weeklyMenu: {},
     fixedMenu: [],
     todayMenu: null,
   },
@@ -72,6 +100,18 @@ const menuSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Failed to fetch fixed menu";
       })
+      .addCase(fetchWeeklyMenu.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchWeeklyMenu.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data.weeklyMenu = action.payload;
+      })
+      .addCase(fetchWeeklyMenu.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch weekly menu";
+      })
       .addCase(fetchTodayMenu.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -95,6 +135,18 @@ const menuSlice = createSlice({
       .addCase(updateTodayMenu.rejected, (state, action) => {
         state.updating = false;
         state.error = action.payload || "Failed to update today menu";
+      })
+      .addCase(updateWeeklyMenu.pending, (state) => {
+        state.updating = true;
+        state.error = null;
+      })
+      .addCase(updateWeeklyMenu.fulfilled, (state, action) => {
+        state.updating = false;
+        state.data.weeklyMenu = action.payload;
+      })
+      .addCase(updateWeeklyMenu.rejected, (state, action) => {
+        state.updating = false;
+        state.error = action.payload || "Failed to update weekly menu";
       });
   },
 });

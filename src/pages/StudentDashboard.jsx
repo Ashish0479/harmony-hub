@@ -263,6 +263,12 @@ const StudentDashboard = () => {
   }
 
   const todayMenu = menuState.data.todayMenu || {};
+  const todayMealEntries = [
+    ["breakfast", todayMenu?.breakfast],
+    ["brunch", todayMenu?.brunch],
+    ["lunch", todayMenu?.lunch],
+    ["dinner", todayMenu?.dinner],
+  ].filter(([, value]) => Boolean(value));
   const pendingBill = (billState.data.bills || []).find((bill) => !bill.isPaid);
   const notifications = useMemo(() => {
     const list = [];
@@ -278,7 +284,12 @@ const StudentDashboard = () => {
         time: "recent",
       });
     }
-    if (todayMenu?.breakfast || todayMenu?.lunch || todayMenu?.dinner) {
+    if (
+      todayMenu?.breakfast ||
+      todayMenu?.brunch ||
+      todayMenu?.lunch ||
+      todayMenu?.dinner
+    ) {
       list.push({ text: "Today's menu has been updated", time: "today" });
     }
     return list;
@@ -320,12 +331,12 @@ const StudentDashboard = () => {
           </h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {Object.entries(todayMenu).length === 0 ? (
+          {todayMealEntries.length === 0 ? (
             <p className="text-sm text-muted-foreground col-span-4">
               Menu not available
             </p>
           ) : null}
-          {Object.entries(todayMenu).map(([meal, items]) => (
+          {todayMealEntries.map(([meal, items]) => (
             <div key={meal} className="bg-muted/40 rounded-xl p-4">
               <span className="text-xs font-semibold uppercase tracking-wider text-primary">
                 {meal}
