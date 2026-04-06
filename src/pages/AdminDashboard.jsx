@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -11,6 +12,8 @@ import {
   TrendingUp,
   CheckCircle2,
   Clock,
+  Megaphone,
+  CalendarCheck2,
 } from "lucide-react";
 import {
   BarChart,
@@ -188,6 +191,44 @@ const AdminDashboard = () => {
             <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
           </motion.div>
         ))}
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        <motion.div variants={item} className="glass-card p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <CalendarCheck2 className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold font-display text-foreground">
+              Rebate Requests
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            View all student rebate applications
+          </p>
+          <Link
+            to="/admin/rebates"
+            className="text-sm font-semibold text-primary hover:underline"
+          >
+            Open rebate panel
+          </Link>
+        </motion.div>
+
+        <motion.div variants={item} className="glass-card p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <Megaphone className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold font-display text-foreground">
+              Announcements
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Publish and manage notices for students
+          </p>
+          <Link
+            to="/admin/announcements"
+            className="text-sm font-semibold text-primary hover:underline"
+          >
+            Open announcements
+          </Link>
+        </motion.div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">

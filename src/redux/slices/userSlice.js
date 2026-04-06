@@ -54,14 +54,64 @@ export const deleteStudent = createAsyncThunk(
   },
 );
 
+export const fetchMyProfile = createAsyncThunk(
+  "user/fetchMyProfile",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiRequest("/user/profile");
+      return response?.data || null;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
+export const updateMyProfile = createAsyncThunk(
+  "user/updateMyProfile",
+  async (profilePayload, { rejectWithValue }) => {
+    try {
+      const response = await apiRequest("/user/profile", {
+        method: "PUT",
+        body: profilePayload,
+      });
+      return response?.data || null;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
+export const uploadMyProfileImage = createAsyncThunk(
+  "user/uploadMyProfileImage",
+  async (imageFile, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("profileImage", imageFile);
+
+      const response = await apiRequest("/user/upload-profile-image", {
+        method: "POST",
+        body: formData,
+      });
+      return response?.data || null;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
 const initialState = {
   loading: false,
   actionLoading: false,
+  profileLoading: false,
+  profileActionLoading: false,
+  profileUploading: false,
   data: {
     students: [],
     currentStudent: null,
   },
+  profile: null,
   error: null,
+  profileError: null,
 };
 
 const userSlice = createSlice({
@@ -125,6 +175,43 @@ const userSlice = createSlice({
       .addCase(deleteStudent.rejected, (state, action) => {
         state.actionLoading = false;
         state.error = action.payload || "Failed to delete student";
+      });
+    builder
+      .addCase(fetchMyProfile.pending, (state) => {
+        state.profileLoading = true;
+        state.profileError = null;
+      })
+      .addCase(fetchMyProfile.fulfilled, (state, action) => {
+        state.profileLoading = false;
+        state.profile = action.payload;
+      })
+      .addCase(fetchMyProfile.rejected, (state, action) => {
+        state.profileLoading = false;
+        state.profileError = action.payload || "Failed to fetch profile";
+      })
+      .addCase(updateMyProfile.pending, (state) => {
+        state.profileActionLoading = true;
+        state.profileError = null;
+      })
+      .addCase(updateMyProfile.fulfilled, (state, action) => {
+        state.profileActionLoading = false;
+        state.profile = action.payload;
+      })
+      .addCase(updateMyProfile.rejected, (state, action) => {
+        state.profileActionLoading = false;
+        state.profileError = action.payload || "Failed to update profile";
+      })
+      .addCase(uploadMyProfileImage.pending, (state) => {
+        state.profileUploading = true;
+        state.profileError = null;
+      })
+      .addCase(uploadMyProfileImage.fulfilled, (state, action) => {
+        state.profileUploading = false;
+        state.profile = action.payload;
+      })
+      .addCase(uploadMyProfileImage.rejected, (state, action) => {
+        state.profileUploading = false;
+        state.profileError = action.payload || "Failed to upload profile image";
       });
   },
 });

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User, ArrowRight, Hash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ const Signup = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [roomNo, setRoomNo] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,6 +25,7 @@ const Signup = () => {
 
     if (
       !fullName.trim() ||
+      !roomNo.trim() ||
       !email.trim() ||
       !password.trim() ||
       !confirmPassword.trim()
@@ -44,6 +46,7 @@ const Signup = () => {
       signupUser({
         firstName,
         lastName,
+        room_no: roomNo.trim(),
         email: email.trim(),
         password,
       }),
@@ -95,6 +98,16 @@ const Signup = () => {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Full Name"
+                className="pl-10 h-12 rounded-xl bg-muted/50 border-border/50 focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+            <div className="relative">
+              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={roomNo}
+                onChange={(e) => setRoomNo(e.target.value)}
+                placeholder="Room Number"
+                required
                 className="pl-10 h-12 rounded-xl bg-muted/50 border-border/50 focus:ring-2 focus:ring-primary/20 transition-all"
               />
             </div>

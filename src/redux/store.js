@@ -7,6 +7,10 @@ import complaintReducer from "./slices/complaintSlice";
 import feedbackReducer from "./slices/feedbackSlice";
 import billReducer from "./slices/billSlice";
 import paymentReducer from "./slices/paymentSlice";
+import attendanceReducer from "./slices/attendanceSlice";
+import billingReducer from "./slices/billingSlice";
+import rebateReducer from "./slices/rebateSlice";
+import announcementReducer from "./slices/announcementSlice";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +22,10 @@ const store = configureStore({
     feedback: feedbackReducer,
     bill: billReducer,
     payment: paymentReducer,
+    attendance: attendanceReducer,
+    billing: billingReducer,
+    rebate: rebateReducer,
+    announcement: announcementReducer,
   },
 });
 

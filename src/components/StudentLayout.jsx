@@ -1,18 +1,26 @@
+import { useEffect, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import {
   Home,
+  UserCircle2,
   UtensilsCrossed,
   Receipt,
   MessageSquare,
   AlertTriangle,
+  CalendarCheck2,
+  Megaphone,
 } from "lucide-react";
 import Navbar from "./Navbar";
+import MobileSidebar from "./MobileSidebar";
 const navItems = [
   { icon: Home, label: "Dashboard", path: "/dashboard" },
+  { icon: UserCircle2, label: "Profile", path: "/profile" },
   { icon: UtensilsCrossed, label: "Mess Menu", path: "/mess-menu" },
   { icon: Receipt, label: "Mess Bill", path: "/mess-bill" },
+  { icon: CalendarCheck2, label: "Rebate", path: "/rebate" },
+  { icon: Megaphone, label: "Announcements", path: "/announcements" },
   { icon: MessageSquare, label: "Feedback", path: "/feedback" },
   { icon: AlertTriangle, label: "Complaints", path: "/complaints" },
 ];
@@ -20,10 +28,21 @@ const StudentLayout = () => {
   const location = useLocation();
   const user = useSelector((state) => state.auth.data.user);
   const userName = user?.firstName || "Student";
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen gradient-bg">
-      <Navbar userName={userName} />
+      <Navbar userName={userName} onMenuClick={() => setIsSidebarOpen(true)} />
+      <MobileSidebar
+        isOpen={isSidebarOpen}
+        navItems={navItems}
+        locationPath={location.pathname}
+        onClose={() => setIsSidebarOpen(false)}
+      />
       <div className="flex">
         {/* Desktop sidebar */}
         <aside className="hidden md:flex w-64 flex-col p-4 pt-6 gap-1 sticky top-16 h-[calc(100vh-4rem)]">
@@ -48,7 +67,7 @@ const StudentLayout = () => {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 p-4 md:p-6 pb-24 md:pb-6">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 pb-24 md:pb-6">
           <Outlet />
         </main>
 

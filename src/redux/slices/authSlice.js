@@ -113,6 +113,18 @@ const authSlice = createSlice({
     clearAuthError: (state) => {
       state.error = null;
     },
+    syncAuthUser: (state, action) => {
+      if (!state.data.user) {
+        state.data.user = action.payload;
+      } else {
+        state.data.user = {
+          ...state.data.user,
+          ...action.payload,
+        };
+      }
+
+      persistAuth(state.data);
+    },
     clearSignupStatus: (state) => {
       state.signupSuccess = false;
       state.error = null;
@@ -199,6 +211,7 @@ const authSlice = createSlice({
 
 export const {
   clearAuthError,
+  syncAuthUser,
   clearSignupStatus,
   clearManagerStatus,
   clearSession,

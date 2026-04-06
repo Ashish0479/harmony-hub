@@ -8,12 +8,15 @@ import {
   AlertTriangle,
   Bell,
   TrendingUp,
+  CalendarCheck2,
+  Megaphone,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { fetchTodayMenu } from "@/redux/slices/menuSlice";
 import { fetchStudentBills } from "@/redux/slices/billSlice";
 import { fetchStudentFeedbacks } from "@/redux/slices/feedbackSlice";
 import { fetchMyComplaints } from "@/redux/slices/complaintSlice";
+import { fetchAnnouncements } from "@/redux/slices/announcementSlice";
 import {
   createStudent,
   deleteStudent,
@@ -48,6 +51,18 @@ const quickActions = [
     path: "/mess-menu",
     color: "bg-primary/10 text-primary",
   },
+  {
+    icon: CalendarCheck2,
+    label: "Apply Rebate",
+    path: "/rebate",
+    color: "bg-info/10 text-info",
+  },
+  {
+    icon: Megaphone,
+    label: "Announcements",
+    path: "/announcements",
+    color: "bg-secondary/20 text-secondary-foreground",
+  },
 ];
 const container = {
   hidden: { opacity: 0 },
@@ -64,6 +79,7 @@ const StudentDashboard = () => {
   const billState = useSelector((state) => state.bill);
   const complaintState = useSelector((state) => state.complaint);
   const feedbackState = useSelector((state) => state.feedback);
+  const announcementState = useSelector((state) => state.announcement);
   const userState = useSelector((state) => state.user);
   const [newStudent, setNewStudent] = useState({
     firstName: "",
@@ -84,6 +100,7 @@ const StudentDashboard = () => {
     dispatch(fetchStudentBills(user.id));
     dispatch(fetchMyComplaints(user.id));
     dispatch(fetchStudentFeedbacks(user.id));
+    dispatch(fetchAnnouncements());
   }, [dispatch, role, user?.id]);
 
   if (role === "ADMIN") {
@@ -380,6 +397,33 @@ const StudentDashboard = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Stats */}
+      <motion.div variants={item} className="glass-card p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Megaphone className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold font-display text-foreground">
+            Latest Announcements
+          </h2>
+        </div>
+        <div className="space-y-3">
+          {(announcementState.data.list || []).length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No announcements yet
+            </p>
+          ) : null}
+          {(announcementState.data.list || []).slice(0, 3).map((entry) => (
+            <div key={entry._id} className="bg-muted/30 rounded-xl p-3">
+              <p className="text-sm font-semibold text-foreground">
+                {entry.title}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {entry.message}
+              </p>
+            </div>
+          ))}
+        </div>
+      </motion.div>
 
       {/* Stats */}
       <motion.div variants={item} className="glass-card p-6">

@@ -15,15 +15,19 @@ async function parseResponse(response) {
 
 export async function apiRequest(path, options = {}) {
   const { method = "GET", body, headers = {}, signal } = options;
+  const isFormData =
+    typeof FormData !== "undefined" && body instanceof FormData;
+
+  const requestHeaders = { ...headers };
+  if (!isFormData) {
+    requestHeaders["Content-Type"] = "application/json";
+  }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...headers,
-    },
-    body: body ? JSON.stringify(body) : undefined,
+    headers: requestHeaders,
+    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
     signal,
   });
 

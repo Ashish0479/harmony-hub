@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatInputDateValue } from "@/lib/dateFormat";
 import {
   fetchFixedMenu,
   fetchTodayMenu,
@@ -62,7 +63,7 @@ const MessMenu = () => {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-6 max-w-5xl"
+      className="space-y-6 max-w-5xl w-full"
     >
       <motion.div variants={item} className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl gradient-warm flex items-center justify-center">
@@ -82,7 +83,7 @@ const MessMenu = () => {
         <motion.form
           onSubmit={handleUpdateMenu}
           variants={item}
-          className="glass-card p-5 grid md:grid-cols-4 gap-3"
+          className="glass-card p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
         >
           <Input
             name="date"
@@ -90,6 +91,9 @@ const MessMenu = () => {
             value={formData.date}
             onChange={handleChange}
           />
+          <div className="flex items-center text-xs text-muted-foreground sm:col-span-2 lg:col-span-1">
+            {formatInputDateValue(formData.date)}
+          </div>
           <Input
             name="breakfast"
             value={formData.breakfast}
@@ -112,7 +116,7 @@ const MessMenu = () => {
             <Button
               disabled={updating}
               type="submit"
-              className="gradient-warm text-primary-foreground border-0"
+              className="gradient-warm text-primary-foreground border-0 min-h-11 w-full sm:w-auto"
             >
               {updating ? "Updating..." : "Update Today Menu"}
             </Button>
@@ -142,7 +146,7 @@ const MessMenu = () => {
           <motion.div
             key={menu.day || i}
             variants={item}
-            className={`glass-card p-5 ${i === dayIndex ? "ring-2 ring-primary/40" : ""}`}
+            className={`glass-card p-4 sm:p-5 ${i === dayIndex ? "ring-2 ring-primary/40" : ""}`}
           >
             <div className="flex items-center gap-2 mb-3">
               <h3

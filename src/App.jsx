@@ -14,6 +14,12 @@ import MessBill from "./pages/MessBill";
 import Feedback from "./pages/Feedback";
 import Complaints from "./pages/Complaints";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminAttendance from "./pages/AdminAttendance";
+import AdminBilling from "./pages/AdminBilling";
+import StudentRebate from "./pages/StudentRebate";
+import AdminRebates from "./pages/AdminRebates";
+import Announcements from "./pages/Announcements";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,8 +66,11 @@ const App = () => (
             <Route path="/dashboard" element={<StudentDashboard />} />
             <Route path="/mess-menu" element={<MessMenu />} />
             <Route path="/mess-bill" element={<MessBill />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/complaints" element={<Complaints />} />
+            <Route path="/rebate" element={<StudentRebate />} />
+            <Route path="/announcements" element={<Announcements />} />
           </Route>
 
           <Route
@@ -73,10 +82,14 @@ const App = () => (
           >
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/menu" element={<MessMenu />} />
+            <Route path="/admin/attendance" element={<AdminAttendance />} />
+            <Route path="/admin/billing" element={<AdminBilling />} />
             <Route path="/admin/complaints" element={<Complaints />} />
             <Route path="/admin/feedback" element={<Feedback />} />
             <Route path="/admin/payments" element={<MessBill />} />
             <Route path="/admin/students" element={<StudentDashboard />} />
+            <Route path="/admin/rebates" element={<AdminRebates />} />
+            <Route path="/admin/announcements" element={<Announcements />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

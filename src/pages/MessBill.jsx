@@ -5,6 +5,7 @@ import { Receipt, CheckCircle2, Clock, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { formatDate } from "@/lib/dateFormat";
 import {
   fetchStudentBills,
   generateBill,
@@ -141,7 +142,7 @@ const MessBill = () => {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-6 max-w-3xl"
+      className="space-y-6 max-w-3xl w-full"
     >
       <motion.div variants={item} className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl gradient-warm flex items-center justify-center">
@@ -160,7 +161,10 @@ const MessBill = () => {
       </motion.div>
 
       {role === "ADMIN" ? (
-        <motion.div variants={item} className="glass-card p-6 space-y-3">
+        <motion.div
+          variants={item}
+          className="glass-card p-4 sm:p-5 md:p-6 space-y-3"
+        >
           <h2 className="font-semibold text-foreground">
             Generate Student Bill
           </h2>
@@ -176,7 +180,7 @@ const MessBill = () => {
               </option>
             ))}
           </select>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
               type="number"
               value={billMonth}
@@ -197,7 +201,7 @@ const MessBill = () => {
           <Button
             onClick={handleGenerateBill}
             disabled={billState.actionLoading}
-            className="gradient-warm text-primary-foreground border-0"
+            className="gradient-warm text-primary-foreground border-0 min-h-11 w-full sm:w-auto"
           >
             {billState.actionLoading ? "Generating..." : "Generate Bill"}
           </Button>
@@ -276,17 +280,17 @@ const MessBill = () => {
           <motion.div
             key={bill._id || `${bill.month}-${bill.year}`}
             variants={item}
-            className="glass-card p-5 flex items-center justify-between"
+            className="glass-card p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
           >
             <div>
               <h3 className="font-semibold text-foreground">{`Month ${bill.month}, ${bill.year}`}</h3>
               <p className="text-sm text-muted-foreground">
                 {bill.isPaid
-                  ? `Paid on ${bill.paymentDate ? new Date(bill.paymentDate).toLocaleDateString() : "-"}`
+                  ? `Paid on ${formatDate(bill.paymentDate)}`
                   : "Pending payment"}
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
               <span className="text-lg font-bold font-display text-foreground">
                 ₹
                 {Number(

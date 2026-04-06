@@ -5,6 +5,7 @@ import { Star, MessageSquare, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { formatDate } from "@/lib/dateFormat";
 import {
   fetchAllFeedbacks,
   fetchStudentFeedbacks,
@@ -64,7 +65,7 @@ const Feedback = () => {
 
   const pastFeedback = useMemo(() => {
     return (data.list || []).map((entry) => ({
-      date: entry.date ? new Date(entry.date).toLocaleDateString() : "-",
+      date: formatDate(entry.date),
       rating: entry.rating || 0,
       comment: entry.suggestion || entry.message || "No comment",
       studentName: entry.student?.firstName

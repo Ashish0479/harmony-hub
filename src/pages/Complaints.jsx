@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { formatDate } from "@/lib/dateFormat";
 import {
   fetchAllComplaints,
   fetchMyComplaints,
@@ -96,7 +97,7 @@ const Complaints = () => {
           title: titlePart || complaint || "Complaint",
           category: categoryPart || "Other",
           status: "pending",
-          date: entry.date ? new Date(entry.date).toLocaleDateString() : "-",
+          date: formatDate(entry.date),
           studentName: entry.student?.firstName
             ? `${entry.student.firstName} ${entry.student.lastName || ""}`.trim()
             : "Student",
