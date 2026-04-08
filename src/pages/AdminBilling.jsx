@@ -89,11 +89,10 @@ const AdminBilling = () => {
             <tr className="text-left text-xs text-muted-foreground border-b border-border/50">
               <th className="py-3 pr-3 font-medium">Student Name</th>
               <th className="py-3 pr-3 font-medium">Room</th>
-              <th className="py-3 pr-3 font-medium">Breakfast</th>
-              <th className="py-3 pr-3 font-medium">Lunch</th>
-              <th className="py-3 pr-3 font-medium">Dinner</th>
+              <th className="py-3 pr-3 font-medium">Present Days</th>
+              <th className="py-3 pr-3 font-medium">Per Day Charge</th>
               <th className="py-3 pr-3 font-medium">Guest</th>
-              <th className="py-3 pr-3 font-medium">Extra</th>
+              <th className="py-3 pr-3 font-medium">Extra (Rs)</th>
               <th className="py-3 pr-3 font-medium text-right">Total Amount</th>
             </tr>
           </thead>
@@ -121,13 +120,10 @@ const AdminBilling = () => {
                   {row.roomNumber || "-"}
                 </td>
                 <td className="py-3 pr-3 text-foreground">
-                  {row.breakdown?.breakfastCount || 0}
+                  {row.breakdown?.presentDays || 0}
                 </td>
                 <td className="py-3 pr-3 text-foreground">
-                  {row.breakdown?.lunchCount || 0}
-                </td>
-                <td className="py-3 pr-3 text-foreground">
-                  {row.breakdown?.dinnerCount || 0}
+                  ₹{Number(row.breakdown?.perDayCharge || 0).toLocaleString()}
                 </td>
                 <td className="py-3 pr-3 text-foreground">
                   {row.breakdown?.guest || 0}

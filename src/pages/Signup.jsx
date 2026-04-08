@@ -1,15 +1,20 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, User, ArrowRight, Hash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { clearSignupStatus, signupUser } from "@/redux/slices/authSlice";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { apiRequest, getErrorMessage } from "@/redux/apiClient";
 
 const Signup = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -17,8 +22,12 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [isOtpDialogOpen, setIsOtpDialogOpen] = useState(false);
+  const [signupLoading, setSignupLoading] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
 
-  const { signupLoading, error } = useSelector((state) => state.auth);
+  const normalizedEmail = email.trim().toLowerCase();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,24 +51,55 @@ const Signup = () => {
     const [firstName, ...rest] = fullName.trim().split(" ");
     const lastName = rest.join(" ");
 
-    const result = await dispatch(
-      signupUser({
-        firstName,
-        lastName,
-        room_no: roomNo.trim(),
-        email: email.trim(),
-        password,
-      }),
-    );
+    try {
+      setSignupLoading(true);
+      await apiRequest("/auth/signup-initiate", {
+        method: "POST",
+        body: {
+          firstName,
+          lastName,
+          room_no: roomNo.trim(),
+          email: normalizedEmail,
+          password,
+        },
+      });
 
-    if (signupUser.fulfilled.match(result)) {
-      toast.success("Signup successful. Please login.");
-      dispatch(clearSignupStatus());
-      navigate("/login", { replace: true });
+      toast.success("OTP sent to your email");
+      setIsOtpDialogOpen(true);
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setSignupLoading(false);
+    }
+  };
+
+  const handleVerifySignupOtp = async (e) => {
+    e.preventDefault();
+
+    if (!/^\d{6}$/.test(otp.trim())) {
+      toast.error("OTP must be a 6-digit number");
       return;
     }
 
-    toast.error(result.payload || "Signup failed");
+    try {
+      setVerifyLoading(true);
+      await apiRequest("/auth/signup-verify", {
+        method: "POST",
+        body: {
+          email: normalizedEmail,
+          otp: otp.trim(),
+        },
+      });
+
+      toast.success("Signup successful. Please login.");
+      setIsOtpDialogOpen(false);
+      setOtp("");
+      navigate("/login", { replace: true });
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setVerifyLoading(false);
+    }
   };
 
   return (
@@ -153,8 +193,6 @@ const Signup = () => {
               />
             </div>
 
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
-
             <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
               <Button
                 disabled={signupLoading}
@@ -177,6 +215,32 @@ const Signup = () => {
             </Link>
           </p>
         </div>
+
+        <Dialog open={isOtpDialogOpen} onOpenChange={setIsOtpDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Verify Signup OTP</DialogTitle>
+              <DialogDescription>
+                Enter the OTP sent to {normalizedEmail || "your email"}.
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={handleVerifySignupOtp} className="space-y-4">
+              <Input
+                type="text"
+                placeholder="Enter 6-digit OTP"
+                value={otp}
+                onChange={(e) =>
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+              />
+
+              <Button type="submit" className="w-full" disabled={verifyLoading}>
+                {verifyLoading ? "Verifying..." : "Verify OTP"}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </motion.div>
     </div>
   );

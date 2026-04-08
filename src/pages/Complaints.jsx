@@ -16,6 +16,7 @@ import { formatDate } from "@/lib/dateFormat";
 import {
   fetchAllComplaints,
   fetchMyComplaints,
+  resolveComplaint,
   submitComplaint,
 } from "@/redux/slices/complaintSlice";
 
@@ -93,11 +94,13 @@ const Complaints = () => {
         const [titlePart, categoryPart] = complaint.split(" | ");
 
         return {
+          _id: entry._id,
           id: `#${String(index + 1).padStart(4, "0")}`,
           title: titlePart || complaint || "Complaint",
           category: categoryPart || "Other",
-          status: "pending",
+          status: entry.status || "pending",
           date: formatDate(entry.date),
+          resolvedAt: entry.resolvedAt ? formatDate(entry.resolvedAt) : null,
           studentName: entry.student?.firstName
             ? `${entry.student.firstName} ${entry.student.lastName || ""}`.trim()
             : "Student",
@@ -109,7 +112,17 @@ const Complaints = () => {
   const statusStyles = {
     resolved: "text-success bg-success/10",
     pending: "text-warning bg-warning/10",
-    "in-progress": "text-info bg-info/10",
+  };
+
+  const handleResolve = async (complaintId) => {
+    const result = await dispatch(resolveComplaint(complaintId));
+
+    if (resolveComplaint.fulfilled.match(result)) {
+      toast.success("Complaint marked as resolved");
+      return;
+    }
+
+    toast.error(result.payload || "Failed to resolve complaint");
   };
   return (
     <motion.div
@@ -232,7 +245,7 @@ const Complaints = () => {
           ) : null}
           {existingComplaints.map((c) => (
             <div
-              key={c.id}
+              key={c._id || c.id}
               className="flex items-center justify-between p-4 rounded-xl bg-muted/30"
             >
               <div>
@@ -253,17 +266,34 @@ const Complaints = () => {
                   </p>
                 ) : null}
                 <span className="text-xs text-muted-foreground">{c.date}</span>
+                {c.status === "resolved" && c.resolvedAt ? (
+                  <p className="text-xs text-success mt-1">
+                    Resolved on {c.resolvedAt}
+                  </p>
+                ) : null}
               </div>
-              <span
-                className={`flex items-center gap-1 text-xs font-medium px-3 py-1 rounded-full ${statusStyles[c.status]}`}
-              >
-                {c.status === "resolved" ? (
-                  <CheckCircle2 className="h-3 w-3" />
-                ) : (
-                  <Clock className="h-3 w-3" />
-                )}
-                {c.status.charAt(0).toUpperCase() + c.status.slice(1)}
-              </span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`flex items-center gap-1 text-xs font-medium px-3 py-1 rounded-full ${statusStyles[c.status] || statusStyles.pending}`}
+                >
+                  {c.status === "resolved" ? (
+                    <CheckCircle2 className="h-3 w-3" />
+                  ) : (
+                    <Clock className="h-3 w-3" />
+                  )}
+                  {c.status.charAt(0).toUpperCase() + c.status.slice(1)}
+                </span>
+
+                {role === "ADMIN" && c.status === "pending" && c._id ? (
+                  <Button
+                    size="sm"
+                    onClick={() => handleResolve(c._id)}
+                    className="h-8 px-3"
+                  >
+                    Resolve
+                  </Button>
+                ) : null}
+              </div>
             </div>
           ))}
         </div>

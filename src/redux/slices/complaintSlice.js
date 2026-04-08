@@ -49,6 +49,20 @@ export const fetchAllComplaints = createAsyncThunk(
   },
 );
 
+export const resolveComplaint = createAsyncThunk(
+  "complaint/resolveComplaint",
+  async (complaintId, { rejectWithValue }) => {
+    try {
+      const response = await apiRequest(`/complaint/resolve/${complaintId}`, {
+        method: "PUT",
+      });
+      return response?.data;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+);
+
 const initialState = {
   loading: false,
   submitLoading: false,
@@ -103,6 +117,22 @@ const complaintSlice = createSlice({
       .addCase(submitComplaint.rejected, (state, action) => {
         state.submitLoading = false;
         state.error = action.payload || "Failed to submit complaint";
+      })
+      .addCase(resolveComplaint.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(resolveComplaint.fulfilled, (state, action) => {
+        const updated = action.payload;
+        if (!updated?._id) {
+          return;
+        }
+
+        state.data = state.data.map((item) =>
+          String(item._id) === String(updated._id) ? updated : item,
+        );
+      })
+      .addCase(resolveComplaint.rejected, (state, action) => {
+        state.error = action.payload || "Failed to resolve complaint";
       });
   },
 });
