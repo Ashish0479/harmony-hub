@@ -77,12 +77,7 @@ const Signup = () => {
         transition={{ duration: 0.6 }}
         className="w-full max-w-md"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold font-display gradient-warm-text">
-            HostelHub
-          </h1>
-          <p className="text-muted-foreground mt-2">Create your account</p>
-        </div>
+        
 
         <div className="glass-card p-8">
           <h2 className="text-2xl font-semibold font-display text-foreground mb-1">
