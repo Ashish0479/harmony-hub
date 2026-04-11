@@ -303,22 +303,7 @@ const StudentDashboard = () => {
       className="space-y-6 max-w-5xl"
     >
       {/* Welcome */}
-      <motion.div
-        variants={item}
-        className="glass-card p-6 relative overflow-hidden"
-      >
-        <div className="absolute top-0 right-0 w-40 h-40 gradient-warm opacity-10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-        <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground">
-          Good Morning,{" "}
-          <span className="gradient-warm-text">
-            {user?.firstName || "Student"}!
-          </span>{" "}
-          👋
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Here's what's happening today at your hostel
-        </p>
-      </motion.div>
+      
 
       {/* Today's Menu */}
       <motion.div variants={item} className="glass-card p-6">

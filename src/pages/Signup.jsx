@@ -5,13 +5,6 @@ import { Mail, Lock, Eye, EyeOff, User, ArrowRight, Hash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { apiRequest, getErrorMessage } from "@/redux/apiClient";
 
 const Signup = () => {
@@ -22,10 +15,7 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [otp, setOtp] = useState("");
-  const [isOtpDialogOpen, setIsOtpDialogOpen] = useState(false);
   const [signupLoading, setSignupLoading] = useState(false);
-  const [verifyLoading, setVerifyLoading] = useState(false);
 
   const normalizedEmail = email.trim().toLowerCase();
 
@@ -53,7 +43,7 @@ const Signup = () => {
 
     try {
       setSignupLoading(true);
-      await apiRequest("/auth/signup-initiate", {
+      await apiRequest("/auth/signup", {
         method: "POST",
         body: {
           firstName,
@@ -64,41 +54,12 @@ const Signup = () => {
         },
       });
 
-      toast.success("OTP sent to your email");
-      setIsOtpDialogOpen(true);
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setSignupLoading(false);
-    }
-  };
-
-  const handleVerifySignupOtp = async (e) => {
-    e.preventDefault();
-
-    if (!/^\d{6}$/.test(otp.trim())) {
-      toast.error("OTP must be a 6-digit number");
-      return;
-    }
-
-    try {
-      setVerifyLoading(true);
-      await apiRequest("/auth/signup-verify", {
-        method: "POST",
-        body: {
-          email: normalizedEmail,
-          otp: otp.trim(),
-        },
-      });
-
       toast.success("Signup successful. Please login.");
-      setIsOtpDialogOpen(false);
-      setOtp("");
       navigate("/login", { replace: true });
     } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {
-      setVerifyLoading(false);
+      setSignupLoading(false);
     }
   };
 
@@ -215,32 +176,6 @@ const Signup = () => {
             </Link>
           </p>
         </div>
-
-        <Dialog open={isOtpDialogOpen} onOpenChange={setIsOtpDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Verify Signup OTP</DialogTitle>
-              <DialogDescription>
-                Enter the OTP sent to {normalizedEmail || "your email"}.
-              </DialogDescription>
-            </DialogHeader>
-
-            <form onSubmit={handleVerifySignupOtp} className="space-y-4">
-              <Input
-                type="text"
-                placeholder="Enter 6-digit OTP"
-                value={otp}
-                onChange={(e) =>
-                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
-                }
-              />
-
-              <Button type="submit" className="w-full" disabled={verifyLoading}>
-                {verifyLoading ? "Verifying..." : "Verify OTP"}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
       </motion.div>
     </div>
   );

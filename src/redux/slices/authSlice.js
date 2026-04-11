@@ -36,7 +36,6 @@ export const loginUser = createAsyncThunk(
         isAuthenticated: true,
         role: response?.data?.userRole || "STUDENT",
         user: response?.data?.userData || null,
-        token: response?.data?.token || null,
       };
 
       persistAuth(authData);
@@ -51,7 +50,7 @@ export const signupUser = createAsyncThunk(
   "auth/signupUser",
   async (userPayload, { rejectWithValue }) => {
     try {
-      const response = await apiRequest("/users", {
+      const response = await apiRequest("/auth/signup", {
         method: "POST",
         body: userPayload,
       });
@@ -99,7 +98,6 @@ const initialState = {
     isAuthenticated: Boolean(storedAuth?.isAuthenticated),
     role: storedAuth?.role || null,
     user: storedAuth?.user || null,
-    token: storedAuth?.token || null,
   },
   error: null,
   signupSuccess: false,
@@ -138,7 +136,6 @@ const authSlice = createSlice({
         isAuthenticated: false,
         role: null,
         user: null,
-        token: null,
       };
       state.error = null;
       clearPersistedAuth();
@@ -193,7 +190,6 @@ const authSlice = createSlice({
           isAuthenticated: false,
           role: null,
           user: null,
-          token: null,
         };
       })
       .addCase(logoutUser.rejected, (state, action) => {
@@ -202,7 +198,6 @@ const authSlice = createSlice({
           isAuthenticated: false,
           role: null,
           user: null,
-          token: null,
         };
         state.error = action.payload || "Logout failed";
       });

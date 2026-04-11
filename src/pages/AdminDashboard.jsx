@@ -72,6 +72,15 @@ const AdminDashboard = () => {
     return dueAmount;
   }, [adminBills]);
 
+  const pendingComplaintsCount = useMemo(
+    () =>
+      complaints.filter(
+        (complaint) =>
+          (complaint.status || "pending").toLowerCase() !== "resolved",
+      ).length,
+    [complaints],
+  );
+
   const stats = [
     {
       label: "Total Students",
@@ -81,7 +90,7 @@ const AdminDashboard = () => {
     },
     {
       label: "Open Complaints",
-      value: String(complaints.length),
+      value: String(pendingComplaintsCount),
       icon: AlertTriangle,
       color: "bg-warning/10 text-warning",
     },
@@ -141,13 +150,15 @@ const AdminDashboard = () => {
   const recentComplaints = complaints.slice(0, 6).map((complaint, index) => {
     const raw = complaint.complaint || "Complaint";
     const parts = raw.split(" | ");
+    const normalizedStatus = (complaint.status || "pending").toLowerCase();
+
     return {
       id: `#${String(index + 1).padStart(4, "0")}`,
       student: complaint.student?.firstName
         ? `${complaint.student.firstName} ${complaint.student.lastName || ""}`.trim()
         : "Student",
       issue: parts[0] || raw,
-      status: "pending",
+      status: normalizedStatus,
     };
   });
 
@@ -163,14 +174,7 @@ const AdminDashboard = () => {
       animate="show"
       className="space-y-6 max-w-6xl"
     >
-      <motion.div variants={item}>
-        <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground">
-          Admin <span className="gradient-warm-text">Dashboard</span>
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Overview of hostel operations
-        </p>
-      </motion.div>
+     
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -178,7 +182,7 @@ const AdminDashboard = () => {
           <motion.div
             key={stat.label}
             variants={item}
-            className="glass-card p-5"
+            className=" p-5"
           >
             <div
               className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${stat.color}`}

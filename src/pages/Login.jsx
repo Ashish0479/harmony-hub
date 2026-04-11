@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { loginUser } from "@/redux/slices/authSlice";
-import ForgotPasswordDialog from "@/components/ForgotPasswordDialog";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,7 +14,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   const { loading, error } = useSelector((state) => state.auth);
 
@@ -111,16 +109,6 @@ const Login = () => {
               </button>
             </div>
 
-            <div className="flex justify-end">
-              <button
-                type="button"
-                className="text-sm text-primary hover:underline"
-                onClick={() => setIsForgotPasswordOpen(true)}
-              >
-                Forgot password?
-              </button>
-            </div>
-
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
             <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
@@ -145,12 +133,6 @@ const Login = () => {
             </Link>
           </p>
         </div>
-
-        <ForgotPasswordDialog
-          open={isForgotPasswordOpen}
-          onOpenChange={setIsForgotPasswordOpen}
-          initialEmail={email}
-        />
       </motion.div>
     </div>
   );

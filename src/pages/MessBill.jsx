@@ -107,7 +107,7 @@ const MessBill = () => {
     const amount = pendingBill.grandTotal || 0;
     const orderResult = await dispatch(
       createPaymentOrder({
-        amount,
+        billId: pendingBill._id,
         month: pendingBill.month,
         year: pendingBill.year,
       }),
