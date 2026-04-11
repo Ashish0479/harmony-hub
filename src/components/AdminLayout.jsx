@@ -8,6 +8,9 @@ const navItems = [
   { title: "Billing", route: "/admin/billing" },
   { title: "Menu", route: "/admin/menu" },
   { title: "Complaints", route: "/admin/complaints" },
+  { title: "Feedback", route: "/admin/feedback" },
+  { title: "Payments", route: "/admin/payments" },
+  { title: "Rebates", route: "/admin/rebates" },
   { title: "Announcements", route: "/admin/announcements" },
 ];
 
