@@ -55,21 +55,6 @@ export const generateBill = createAsyncThunk(
   },
 );
 
-export const markBillPaid = createAsyncThunk(
-  "bill/markBillPaid",
-  async ({ billId, mode, amount }, { rejectWithValue }) => {
-    try {
-      const response = await apiRequest(`/bill/${billId}/pay`, {
-        method: "POST",
-        body: { mode, amount },
-      });
-      return response?.data;
-    } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
-    }
-  },
-);
-
 const initialState = {
   loading: false,
   actionLoading: false,
@@ -140,24 +125,6 @@ const billSlice = createSlice({
       .addCase(generateBill.rejected, (state, action) => {
         state.actionLoading = false;
         state.error = action.payload || "Failed to generate bill";
-      })
-      .addCase(markBillPaid.pending, (state) => {
-        state.actionLoading = true;
-        state.error = null;
-      })
-      .addCase(markBillPaid.fulfilled, (state, action) => {
-        state.actionLoading = false;
-        if (!action.payload) return;
-        state.data.bills = state.data.bills.map((bill) =>
-          String(bill._id) === String(action.payload._id)
-            ? action.payload
-            : bill,
-        );
-        state.data.selectedBill = action.payload;
-      })
-      .addCase(markBillPaid.rejected, (state, action) => {
-        state.actionLoading = false;
-        state.error = action.payload || "Failed to update bill payment";
       });
   },
 });

@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/dateFormat";
+import { fetchStudentBills, generateBill } from "@/redux/slices/billSlice";
 import {
-  fetchStudentBills,
-  generateBill,
-  markBillPaid,
-} from "@/redux/slices/billSlice";
-import { createPaymentOrder } from "@/redux/slices/paymentSlice";
+  createPaymentOrder,
+  markBillPaidByAdminCash,
+  verifyPayment,
+} from "@/redux/slices/paymentSlice";
 import { fetchStudents } from "@/redux/slices/userSlice";
 
 const container = {
@@ -19,6 +19,21 @@ const container = {
   show: { opacity: 1, transition: { staggerChildren: 0.1 } },
 };
 const item = { hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } };
+
+const ensureRazorpayLoaded = () => {
+  if (window.Razorpay) {
+    return Promise.resolve(true);
+  }
+
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 const MessBill = () => {
   const dispatch = useDispatch();
@@ -79,15 +94,9 @@ const MessBill = () => {
   };
 
   const handleMarkPaid = async (bill) => {
-    const result = await dispatch(
-      markBillPaid({
-        billId: bill._id,
-        mode: "cash",
-        amount: bill.grandTotal || bill.amountPaid || 0,
-      }),
-    );
+    const result = await dispatch(markBillPaidByAdminCash(bill._id));
 
-    if (markBillPaid.fulfilled.match(result)) {
+    if (markBillPaidByAdminCash.fulfilled.match(result)) {
       toast.success("Payment updated");
       if (role === "ADMIN" && selectedStudentId) {
         dispatch(fetchStudentBills(selectedStudentId));
@@ -104,12 +113,9 @@ const MessBill = () => {
       return;
     }
 
-    const amount = pendingBill.grandTotal || 0;
     const orderResult = await dispatch(
       createPaymentOrder({
         billId: pendingBill._id,
-        month: pendingBill.month,
-        year: pendingBill.year,
       }),
     );
 
@@ -118,23 +124,60 @@ const MessBill = () => {
       return;
     }
 
-    const result = await dispatch(
-      markBillPaid({
-        billId: pendingBill._id,
-        mode: "online",
-        amount,
-      }),
-    );
+    const paymentData = orderResult.payload;
+    const razorpayReady = await ensureRazorpayLoaded();
 
-    if (markBillPaid.fulfilled.match(result)) {
-      toast.success("Payment successful");
-      if (user?.id) {
-        dispatch(fetchStudentBills(user.id));
-      }
+    if (!razorpayReady || !paymentData?.order?.id || !paymentData?.keyId) {
+      toast.error("Unable to initialize Razorpay checkout");
       return;
     }
 
-    toast.error(result.payload || "Payment update failed");
+    const options = {
+      key: paymentData.keyId,
+      amount: paymentData.order.amount,
+      currency: paymentData.order.currency,
+      name: "Hostel Hub",
+      description: `Mess bill ${pendingBill.month}/${pendingBill.year}`,
+      order_id: paymentData.order.id,
+      prefill: {
+        name: [user?.firstName, user?.lastName].filter(Boolean).join(" "),
+        email: user?.email,
+      },
+      notes: {
+        billId: pendingBill._id,
+      },
+      handler: async (response) => {
+        const verifyResult = await dispatch(
+          verifyPayment({
+            billId: pendingBill._id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          }),
+        );
+
+        if (verifyPayment.fulfilled.match(verifyResult)) {
+          toast.success("Payment verified successfully");
+          if (user?.id) {
+            dispatch(fetchStudentBills(user.id));
+          }
+          return;
+        }
+
+        toast.error(verifyResult.payload || "Payment verification failed");
+      },
+      modal: {
+        ondismiss: () => {
+          toast.error("Payment cancelled");
+        },
+      },
+    };
+
+    const razorpayCheckout = new window.Razorpay(options);
+    razorpayCheckout.on("payment.failed", () => {
+      toast.error("Payment failed. Please try again.");
+    });
+    razorpayCheckout.open();
   };
 
   return (
